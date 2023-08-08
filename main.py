@@ -68,25 +68,62 @@ def train_val_split(time, series, time_step):
     time_valid = time[time_step:]
     series_valid = series[time_step:]
 
-    return time_valid
+    return time_train, series_train, time_valid, series_valid
 
-st.title('Kenyan Economy Inflation Rate Data')
-df, model = fetch_data()
-df = preprocess_df(df)
-plot_climate_data(df)
-window_size = 5
-split_time = 156
+def future_model_forecast(model, series, window_size, future_steps):
+    # Prepare the dataset for prediction
+    dataset = tf.data.Dataset.from_tensor_slices(series)
+    dataset = dataset.window(window_size, shift=1, drop_remainder=True)
+    dataset = dataset.flat_map(lambda w: w.batch(window_size))
+    dataset = dataset.batch(5).prefetch(1)
+    
+    # Predict using the model
+    forecast = model.predict(dataset)
+     
+    # Extract predictions for future time steps
+    future_forecast = []
 
-date, inflation = parse_data_from_dataframe(df)
+    for batch in forecast:
+        future_forecast.extend(batch[-future_steps:])
 
-window_size, series = get_window_and_series(df, window_size, split_time)
+    return np.array(future_forecast).squeeze()
 
-time_valid = train_val_split(df.index, series, split_time)
+def plot_future_forecast(model, series, time_valid, window_size, future_months):
+    last_timestamp = time_valid[-1]
+    future_time_steps = future_months
+    future_time = pd.date_range(start=last_timestamp, periods=future_time_steps, freq='1M')
+    future_forecast = future_model_forecast(model, series, window_size, future_time_steps)
+    fig = go.Figure()
+    fig.add_trace(go.Scattergl(x=time_valid, y=series, mode='lines', name='Actual Data', line=dict(color='salmon')))
 
-forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
+    fig.add_trace(go.Scattergl(x=future_time, y=future_forecast, mode='lines', name='Predicted Data (Future)', line=dict(color='green')))
 
-future_years = st.slider("Select Years into the Future for Forecasting", 3, 1, 36)
-future_months = future_years * 12
+    fig.update_layout(title='Actual vs. Predicted Data', xaxis_title='Time', yaxis_title='Value')
+    fig.show()
 
-with st.spinner("Forecasting..."):
-    forecasting.plot_future_forecast(future_months)
+    
+def main():
+    st.title('Kenyan Economy Inflation Rate Data')
+    df, model = fetch_data()
+    df = preprocess_df(df)
+    plot_climate_data(df)
+
+    window_size = 5
+    split_time = 156
+
+    date, inflation = parse_data_from_dataframe(df)
+
+    window_size, series = get_window_and_series(df, window_size, split_time)
+
+    time_train, series_trainset, time_valid, series_validset = train_val_split(df.index, series, split_time)
+
+    # forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
+
+    future_years = st.slider("Select Years into the Future for Forecasting", 3, 1, 36)
+    future_months = future_years * 12
+
+    with st.spinner("Forecasting..."):
+        plot_future_forecast(model, series, time_valid, window_size, future_months)
+
+if __name__ == "__main__":
+    main()
