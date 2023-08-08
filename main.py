@@ -32,8 +32,8 @@ def plot_climate_data(df):
     fig.add_trace(go.Scatter(x=df.index, y=df["12-Month Inflation"],
                              mode='lines', name="Monthly Inflation", line=dict(color='salmon')))
 
-    fig.update_layout(title='Monthly Inflation Data',
-                      xaxis_title='Month', yaxis_title='Monthly Inflation',
+    fig.update_layout(title='Kenyan Economy Inflation Rate Data',
+                      xaxis_title='Year', yaxis_title='Monthly Inflation Rate(%)',
                       width=1000, height=500, showlegend=True)
 
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
@@ -87,11 +87,9 @@ def plot_climate_data(df):
 #     # Display the figure
 #     fig.show()
 
+st.title('Kenyan Economy Inflation Rate Data')
+df, model = fetch_data()
+df = preprocess_df(df)
+    
+plot_climate_data(df)
 
-def streamlit_app():
-     df, model = fetch_data()
-     df = preprocess_df(df)
-     plot_climate_data(df)
-
-if __name__ == "__main__":
-    streamlit_app()
