@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import tensorflow as tf
 from forecasting import TimeSeriesForecasting
 
-
+@st.cache_data
 def fetch_data():
     df = pd.read_csv("Inflation Rates.csv")
     model = tf.keras.models.load_model("model.h5")
@@ -39,8 +39,8 @@ def plot_climate_data(df):
                       xaxis_title='Year', yaxis_title='Monthly Inflation Rate(%)',
                       width=1000, height=500, showlegend=True)
 
-    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
-    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+    fig.update_xaxes()
+    fig.update_yaxes()
 
     st.plotly_chart(fig)
 
@@ -116,7 +116,7 @@ def main():
     future_months = future_years * 12
 
     with st.spinner("Forecasting..."):
-        plot_future_forecast(model, series_validset, time_valid, window_size, future_months)
+        plot_future_forecast(model, series, df.index, window_size, future_months)
 
 if __name__ == "__main__":
     main()
