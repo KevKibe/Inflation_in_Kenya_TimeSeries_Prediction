@@ -55,11 +55,20 @@ def parse_data_from_dataframe(df):
         count += 1
     return date, inflation
 
+
 def get_window_and_series(df, window_size, split_time):
     dates, inflation = parse_data_from_dataframe(df)
     series = np.array(inflation)
-    time_valid = df.index[split_time:]
-    return window_size, series, time_valid
+    return window_size, series
+
+def train_val_split(time, series, time_step):
+
+    time_train = time[:time_step]
+    series_train = series[:time_step]
+    time_valid = time[time_step:]
+    series_valid = series[time_step:]
+
+    return time_valid
 
 st.title('Kenyan Economy Inflation Rate Data')
 df, model = fetch_data()
@@ -67,10 +76,17 @@ df = preprocess_df(df)
 plot_climate_data(df)
 window_size = 5
 split_time = 156
+
 date, inflation = parse_data_from_dataframe(df)
-window_size, series, time_valid = get_window_and_series(df, window_size, split_time)
+
+window_size, series = get_window_and_series(df, window_size, split_time)
+
+time_valid = train_val_split(df.index, series, split_time)
+
 forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
+
 future_years = st.slider("Select Years into the Future for Forecasting", 3, 1, 36)
 future_months = future_years * 12
+
 with st.spinner("Forecasting..."):
     forecasting.plot_future_forecast(future_months)
