@@ -94,7 +94,7 @@ def plot_future_forecast(model, series, time_valid, window_size, future_months):
 
     fig.add_trace(go.Scattergl(x=future_time, y=future_forecast, mode='lines', name='Predicted Data (Future)', line=dict(color='green')))
 
-    fig.update_layout(title='Actual vs. Predicted Data', xaxis_title='Time', yaxis_title='Value')
+    fig.update_layout(title='Actual vs. Predicted Data', xaxis_title='Time', yaxis_title='Value',width=1000, height=600)
     st.plotly_chart(fig)
 
     
