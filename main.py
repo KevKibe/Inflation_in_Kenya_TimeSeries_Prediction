@@ -116,7 +116,7 @@ def main():
     future_months = future_years * 12
 
     with st.spinner("Forecasting..."):
-        plot_future_forecast(model, series, time_valid, window_size, future_months)
+        plot_future_forecast(model, series_validset, time_valid, window_size, future_months)
 
 if __name__ == "__main__":
     main()
