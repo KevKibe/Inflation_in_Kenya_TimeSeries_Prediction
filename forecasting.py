@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import plotly.graph_objects as go
-
+import streamlit as st
 
 
 
@@ -35,11 +35,11 @@ class TimeSeriesForecasting:
         future_forecast = self.future_model_forecast(future_time_steps)
         
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=self.time_valid, y=self.series, mode='lines', name='Actual Data', line=dict(color='salmon')))
-        fig.add_trace(go.Scatter(x=future_time, y=future_forecast, mode='lines', name='Predicted Data (Future)', line=dict(color='green')))
+        fig.add_trace(go.Scattergl(x=self.time_valid, y=self.series, mode='lines', name='Actual Data', line=dict(color='salmon')))
+        fig.add_trace(go.Scattergl(x=future_time, y=future_forecast, mode='lines', name='Predicted Data (Future)', line=dict(color='green')))
         
         fig.update_layout(title='Actual vs. Predicted Data', xaxis_title='Time', yaxis_title='Value')
-        fig.show()
+        st.plotly_chart(fig)
 
 
 
