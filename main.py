@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import tensorflow as tf
+from forecasting import TimeSeriesForecasting
 
 @st.cache_data
 def fetch_data():
@@ -26,6 +27,7 @@ def preprocess_df(df):
     return df
 
 
+
 def plot_climate_data(df):
     fig = go.Figure()
 
@@ -42,54 +44,33 @@ def plot_climate_data(df):
     st.plotly_chart(fig)
 
 
+def parse_data_from_dataframe(df):
+    date = []
+    inflation = []
+    count = 0
+    for rate in df['12-Month Inflation']:
+        inflation_float = float(rate)
+        inflation.append(inflation_float)
+        date.append(int(count))
+        count += 1
+    return date, inflation
 
-# def future_model_forecast(model, series, window_size, future_steps):
-#     # Prepare the dataset for prediction
-#     dataset = tf.data.Dataset.from_tensor_slices(series)
-#     dataset = dataset.window(window_size, shift=1, drop_remainder=True)
-#     dataset = dataset.flat_map(lambda w: w.batch(window_size))
-#     dataset = dataset.batch(5).prefetch(1)
-
-#     # Predict using the model
-#     forecast = model.predict(dataset)
-
-#     # Extract predictions for future time steps
-#     future_forecast = []
-
-#     for batch in forecast:
-#         future_forecast.extend(batch[-future_steps:])
-
-#     return np.array(future_forecast).squeeze()
-
-
-# def plot_future_forecast(model, series, time_valid, window_size, future_months):
-#     # Get the last timestamp from the validation time series
-#     last_timestamp = time_valid[-1]
-#     future_time_steps = future_months
-#     # Generate a range of future time steps on a monthly basis
-#     future_time = pd.date_range(start=last_timestamp, periods=future_months, freq='1M')
-
-#     # Get the future forecast using the provided function future_model_forecast
-#     future_forecast = future_model_forecast(model, series, window_size, future_months)
-
-#     # Create a Plotly figure
-#     fig = go.Figure()
-
-#     # Add a trace for the actual data
-#     fig.add_trace(go.Scattergl(x=time_valid, y=series, mode='lines', name='Actual Data', line=dict(color='salmon')))
-
-#     # Add a trace for the predicted data (future forecast)
-#     fig.add_trace(go.Scattergl(x=future_time, y=future_forecast, mode='lines', name='Predicted Data (Future)', line=dict(color='green')))
-
-#     # Customize the layout of the figure
-#     fig.update_layout(title='Actual vs. Predicted Data', xaxis_title='Time', yaxis_title='Value')
-
-#     # Display the figure
-#     fig.show()
+def get_window_and_series(df, window_size, split_time):
+    dates, inflation = parse_data_from_dataframe(df)
+    series = np.array(inflation)
+    time_valid = df.index[split_time:]
+    return window_size, series, time_valid
 
 st.title('Kenyan Economy Inflation Rate Data')
 df, model = fetch_data()
 df = preprocess_df(df)
-    
 plot_climate_data(df)
-
+window_size = 5
+split_time = 156
+date, inflation = parse_data_from_dataframe(df)
+window_size, series, time_valid = get_window_and_series(df, window_size, split_time)
+forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
+future_years = st.slider("Select Years into the Future for Forecasting", 3, 1, 36)
+future_months = future_years * 12
+with st.spinner("Forecasting..."):
+    forecasting.plot_future_forecast(future_months)
