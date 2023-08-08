@@ -5,14 +5,14 @@ import plotly.graph_objects as go
 import tensorflow as tf
 from forecasting import TimeSeriesForecasting
 
-@st.cache_data
+
 def fetch_data():
     df = pd.read_csv("Inflation Rates.csv")
     model = tf.keras.models.load_model("model.h5")
     return df, model
 
 
-def preprocess_df(df):
+def preprocess_dataframe(df):
     month_to_number = {
         'January': 1, 'February': 2, 'March': 3, 'April': 4,
         'May': 5, 'June': 6, 'July': 7, 'August': 8,
@@ -24,6 +24,7 @@ def preprocess_df(df):
     df.drop(['Year', 'Month'], axis=1, inplace=True)
     df.set_index('Date', inplace=True)
     df = df.sort_index(ascending=True)
+
     return df
 
 
@@ -56,10 +57,10 @@ def parse_data_from_dataframe(df):
     return date, inflation
 
 
-def get_window_and_series(df, window_size, split_time):
+def get_window_and_series(df, split_time):
     dates, inflation = parse_data_from_dataframe(df)
     series = np.array(inflation)
-    return window_size, series
+    return  series
 
 def train_val_split(time, series, time_step):
 
@@ -76,17 +77,12 @@ def future_model_forecast(model, series, window_size, future_steps):
     dataset = dataset.window(window_size, shift=1, drop_remainder=True)
     dataset = dataset.flat_map(lambda w: w.batch(window_size))
     dataset = dataset.batch(5).prefetch(1)
-    
-    # Predict using the model
     forecast = model.predict(dataset)
-     
-    # Extract predictions for future time steps
     future_forecast = []
-
     for batch in forecast:
         future_forecast.extend(batch[-future_steps:])
-
     return np.array(future_forecast).squeeze()
+
 
 def plot_future_forecast(model, series, time_valid, window_size, future_months):
     last_timestamp = time_valid[-1]
@@ -105,21 +101,18 @@ def plot_future_forecast(model, series, time_valid, window_size, future_months):
 def main():
     st.title('Time Series Prediction on Inflation Rate Data in Kenya')
     df, model = fetch_data()
-    df = preprocess_df(df)
+    df = preprocess_dataframe(df)
     plot_climate_data(df)
 
     window_size = 5
     split_time = 156
-
-    date, inflation = parse_data_from_dataframe(df)
-
-    window_size, series = get_window_and_series(df, window_size, split_time)
+    series = get_window_and_series(df, split_time)
 
     time_train, series_trainset, time_valid, series_validset = train_val_split(df.index, series, split_time)
 
     # forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
 
-    future_years = st.slider("Select Years into the Future for Forecasting", 3, 1, 36)
+    future_years = st.slider("Select Month into the Future for Forecasting", 3, 1, 36)
     future_months = future_years * 12
 
     with st.spinner("Forecasting..."):
