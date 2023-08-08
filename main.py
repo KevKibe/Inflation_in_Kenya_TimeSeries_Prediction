@@ -37,10 +37,8 @@ def plot_climate_data(df):
 
     fig.update_layout(title='Kenyan Economy Inflation Rate Data',
                       xaxis_title='Year', yaxis_title='Monthly Inflation Rate(%)',
-                      width=st.config.get_option("theme.mobile.layout.width"),
-                      height=st.config.get_option("theme.mobile.layout.height"),
-                      showlegend=True)
-    
+                      width=1000, height=500, showlegend=True)
+
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 
