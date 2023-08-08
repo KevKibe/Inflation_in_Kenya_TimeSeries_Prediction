@@ -7,7 +7,7 @@ import tensorflow as tf
 @st.cache_data
 def fetch_data():
     df = pd.read_csv("Inflation Rates.csv")
-    model = tf.keras.models.load_model("rnn_model.h5")
+    model = tf.keras.models.load_model("model.h5")
     return df, model
 
 
