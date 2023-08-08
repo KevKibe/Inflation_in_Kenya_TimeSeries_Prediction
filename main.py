@@ -112,7 +112,7 @@ def main():
 
     # forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
 
-    future_years = st.slider("Select Month into the Future for Forecasting", 3, 1, 36)
+    future_years = st.slider("Select Month into the Future for Forecasting", 3, 1, 60)
     future_months = future_years * 12
 
     with st.spinner("Forecasting..."):
