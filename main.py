@@ -22,7 +22,7 @@ def preprocess_df(df):
 
     df.drop(['Year', 'Month'], axis=1, inplace=True)
     df.set_index('Date', inplace=True)
-    
+    df = df.sort_index(ascending=True)
     return df
 
 
