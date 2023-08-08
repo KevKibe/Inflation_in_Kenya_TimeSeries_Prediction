@@ -37,10 +37,12 @@ def plot_climate_data(df):
 
     fig.update_layout(title='Kenyan Economy Inflation Rate Data',
                       xaxis_title='Year', yaxis_title='Monthly Inflation Rate(%)',
-                      width=1000, height=500, showlegend=True)
-
-    fig.update_xaxes()
-    fig.update_yaxes()
+                      width=st.config.get_option("theme.mobile.layout.width"),
+                      height=st.config.get_option("theme.mobile.layout.height"),
+                      showlegend=True)
+    
+    fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
+    fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey')
 
     st.plotly_chart(fig)
 
@@ -111,7 +113,7 @@ def main():
     time_train, series_trainset, time_valid, series_validset = train_val_split(df.index, series, split_time)
 
     # forecasting = TimeSeriesForecasting(model, series, time_valid, window_size)
-
+    st.title("Making Predictions")
     future_years = st.slider("Select Month into the Future for Forecasting", 3, 1, 60)
     future_months = future_years * 12
 
