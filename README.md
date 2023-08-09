@@ -1,6 +1,6 @@
 # Inflation_in_Kenya_TimeSeries_Prediction
 ## Description
-- This is a time-series forecasting application used for predicting future inflation data.
+- This is a time-series forecasting application used for predicting future inflation rate in Kenya.
 - This [notebook](https://github.com/KevKibe/Inflation_in_Kenya_TimeSeries_Prediction/blob/main/Timeseries_Inflation_Rate.ipynb) shows how I trained the model
   
 ## Dataset
